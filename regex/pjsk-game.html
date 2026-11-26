@@ -2768,7 +2768,7 @@
   window.PJSK_SETTINGS = {
     assetBase: 'https://raw.githubusercontent.com/Cat-organ/st-pjsk-live2d/main/',
     playerBundle: 'https://st-pjsk-live2d.pages.dev/player/bundle.js',
-    buildStamp: '2026-11-26 15:17'
+    buildStamp: '2026-11-26 15:52'
   };
 </script>
 </head>
@@ -9628,7 +9628,7 @@
    * 下完照样会写进 modelCache——所以按缓存判断才准。
    * S.warmup = false 可关掉，S.warmupModels 改「先备几个」（默认 3）。
    */
-  var WARMUP_LIMIT = 60000;     // 最多等这么久，到点无论备没备齐都开演
+  var WARMUP_LIMIT = 90000;     // 最多等这么久，到点无论备没备齐都开演
 
   function warmUpThenPlay() {
     var p = app.player;
