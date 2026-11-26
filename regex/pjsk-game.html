@@ -2768,7 +2768,7 @@
   window.PJSK_SETTINGS = {
     assetBase: 'https://raw.githubusercontent.com/Cat-organ/st-pjsk-live2d/main/',
     playerBundle: 'https://st-pjsk-live2d.pages.dev/player/bundle.js',
-    buildStamp: '2026-11-26 12:49'
+    buildStamp: '2026-11-26 15:17'
   };
 </script>
 </head>
@@ -9615,6 +9615,84 @@
 
   /* ---------------- 播放 ---------------- */
 
+  /* 开演前先把这一场要用的模型备好 ----------------
+   * 播放器的时间轴是「演到哪一句再去要模型」，而角色上场那一步最多只等 12 秒
+   * （bundle 里的 APPEAR_WAIT）。素材在 github raw / 别的 CDN 上时，一个校服模型
+   * （moc3 1.4MB + 贴图 1.8MB + 物理 + 动作）经常来不及，于是：
+   *   snippet 0 (CharacterLayout) failed: model unavailable: xxx
+   * 而且**不会重试**——那一整轮的立绘就没了，只剩台词。
+   *
+   * 所以关掉播放器的自动开演，这里先把这个场景前几个要出场的服装拉下来，
+   * 盯着 modelCache 等它们真的进了缓存，再 play()。
+   * 不看 loadCostume 的返回值：它有 30 秒上限，超时返回 null，但底层请求还在跑、
+   * 下完照样会写进 modelCache——所以按缓存判断才准。
+   * S.warmup = false 可关掉，S.warmupModels 改「先备几个」（默认 3）。
+   */
+  var WARMUP_LIMIT = 60000;     // 最多等这么久，到点无论备没备齐都开演
+
+  function warmUpThenPlay() {
+    var p = app.player;
+    var ses = p && p.session;
+    var st = ses && ses.stage;
+    var scn = ses && ses.scenario;
+    var started = false;
+
+    function go(why) {
+      if (started) return;
+      started = true;
+      if (why) console.info('[pjsdk] 开演（' + why + '）');
+      try { void p.play(); } catch (e) { console.error('[pjsdk] play 失败', e); }
+    }
+
+    if (!st || !scn) { go('播放器没有预热接口'); return; }
+
+    // 这个场景里会出场的服装，按出场顺序去重，只备前几个
+    var want = [];
+    var seen = {};
+    (scn.AppearCharacters || []).forEach(function (c) {
+      if (!c || !c.CostumeType || seen[c.CostumeType]) return;
+      seen[c.CostumeType] = 1;
+      want.push(c);
+    });
+    var n = Math.max(0, Math.min(Number(S.warmupModels) || 3, want.length));
+    if (!n || S.warmup === false) { go('不用预热'); return; }
+
+    var targets = want.slice(0, n);
+    var cache = st.modelCache;
+    function got() {
+      if (!cache) return 0;
+      var k = 0;
+      for (var i = 0; i < targets.length; i++) if (cache.has(targets[i].CostumeType)) k++;
+      return k;
+    }
+    function setStatus(txt) {
+      try { if (p.statusEl && p.statusEl.textContent !== txt) p.statusEl.textContent = txt; } catch (e) { /* 老版本没这个元素 */ }
+    }
+
+    if (got() >= n) { go('模型已在缓存'); return; }
+
+    try {
+      if (p.showLoading) p.showLoading();
+      if (p.startBtn) p.startBtn.hidden = true;
+      setStatus('正在准备立绘 0/' + n);
+    } catch (e) { /* 同上 */ }
+
+    // 先把下载踢起来（库自己也在下，loadCostume 内部有去重，重复调不会多下）
+    if (st.loadCostume) {
+      targets.forEach(function (c) {
+        try { Promise.resolve(st.loadCostume(c.CostumeType, c.Character2dId)).catch(function () {}); } catch (e) { /* ignore */ }
+      });
+    }
+
+    var t0 = Date.now();
+    var timer = setInterval(function () {
+      var k = got();
+      if (k >= n) { clearInterval(timer); go('模型就绪'); return; }
+      if (Date.now() - t0 > WARMUP_LIMIT) { clearInterval(timer); go('预热超时 ' + (WARMUP_LIMIT / 1000) + ' 秒'); return; }
+      setStatus('正在准备立绘 ' + k + '/' + n);
+    }, 400);
+  }
+
   async function play(text, label) {
     var parsed = global.PJSK_PARSER.parseMessage(text);
     if (!parsed.events.length && !(parsed.branches && parsed.branches.length)) {
@@ -9804,7 +9882,11 @@
 
     app.player = factory('#stage', {
       assets: assets,
-      autoplay: true,
+      // 不交给播放器自动开演：它一开演就按时间轴走，而「角色上场」只等模型 12 秒
+      // （bundle 里的 APPEAR_WAIT），素材在远端时经常来不及，这一句的立绘会被
+      // **永久丢掉**（控制台：snippet 0 (CharacterLayout) failed: model unavailable）。
+      // 改成我们自己先把这个场景的模型拉下来，再调 play()，见 warmUpThenPlay。
+      autoplay: false,
       // 默认「点一下进一句」；右下角 AUTO 切自动播放（选择会记在 localStorage）
       auto: initialAuto(),
       fast: !!S.fast,
@@ -9830,6 +9912,13 @@
       hookDialogueName(s && s.player);
       hookDialogueFit(s && s.player);
       mountPlacePlate(app.player);
+      // 自动开演关掉了（见上面 autoplay 那段注释），这里接管开演时机。
+      // 用 setTimeout 是因为库在本轮回调**之后**才把「开始」按钮那套摆好，
+      // 早一步调 play() 会被它覆盖回去。
+      setTimeout(function () {
+        var ses = app.player.session;
+        if (ses && ses === s && !ses.started) warmUpThenPlay();
+      }, 0);
     });
     // 新一轮开演：地点牌先收起来，等 progress 按新的 SceneMarks 重新挂
     app.player.on('play', function () { resetPlacePlate(); });

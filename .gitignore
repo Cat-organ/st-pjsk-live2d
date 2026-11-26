@@ -1,0 +1,5 @@
+# 测试临时文件
+_pack-test.html
+*_test.html
+.DS_Store
+Thumbs.db

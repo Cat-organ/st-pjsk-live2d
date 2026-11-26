@@ -35,6 +35,11 @@ SillyTavern「PJSK 剧情」前端用的**素材包 + 页面源文件**。
   Windows 本地不区分，改完在本地能跑、线上 404。
 - `regex/_headers` 里那行 `Access-Control-Allow-Origin: *` 不能删：
   酒馆和 Pages 不同源，没有它 `$('body').load()` 会被浏览器拦掉。
+- **首次打开会先等一会儿**：页面进场时先把这一场要出场的几个模型拉进缓存
+  （遮罩显示「正在准备立绘 2/3」），备齐再开演。因为播放器给「角色上场」只留
+  12 秒，素材在 raw 上经常超时，超时那一句的立绘会被永久丢掉（只剩台词）。
+  第二次打开有浏览器缓存，通常几秒就开演。
+  想关掉：页面里的 `PJSK_SETTINGS.warmup = false`；想改备几个：`warmupModels`。
 - 换页面地址（换 Pages 项目 / 换域名）要同时改两处：
   `regex/pjsk-game.html` 里的 `assetBase`（`build_player.py --asset-base` 重建）
   和 `酒馆正则.json` 里 `replaceString` 的那条 URL。
