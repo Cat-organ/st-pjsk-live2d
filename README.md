@@ -54,3 +54,6 @@ cp dist-player/pjsk-game.html <本仓库>/regex/pjsk-game.html
 ```
 
 `build_player.py` 会连 `assetBase`、`playerBundle` 和构建时间戳一起写进页面。
+
+仓库已经连到 Cloudflare Pages（部署目录 `regex/`），**push 到 main 会自动部署**，
+不需要手动上传。`buildStamp` 可以在页面右下角的报错卡片里对照。
