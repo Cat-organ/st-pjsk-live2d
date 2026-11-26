@@ -1,0 +1,22 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "26kaito_wonder_3.0_f_t02.moc3",
+		"Textures": [
+			"26kaito_wonder_3.0_f_t02.2048/texture_00.png"
+		],
+		"Physics": "26kaito_wonder_3.0_f_t02.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

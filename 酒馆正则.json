@@ -1,0 +1,17 @@
+{
+    "id": "ea60df54-42e3-4f29-99f7-8c5c6029c9cc",
+    "scriptName": "PJSK 剧情",
+    "findRegex": "<game>(?![\\s\\S]*<game>)([\\s\\S]*?)</game>",
+    "replaceString": "```text\n<body>\n<script>\n$('body').load('https://st-pjsk-live2d.pages.dev/pjsk-game.html')\n</script>\n</body>\n```",
+    "trimStrings": [],
+    "placement": [
+        2
+    ],
+    "disabled": false,
+    "markdownOnly": true,
+    "promptOnly": false,
+    "runOnEdit": true,
+    "substituteRegex": 0,
+    "minDepth": null,
+    "maxDepth": null
+}

@@ -1,0 +1,22 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "sub_rivalidol_akari_lesson_t01.moc3",
+		"Textures": [
+			"sub_rivalidol_akari_lesson_t01.2048/texture_00.png"
+		],
+		"Physics": "sub_rivalidol_akari_lesson_t01.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		}
+	]
+}

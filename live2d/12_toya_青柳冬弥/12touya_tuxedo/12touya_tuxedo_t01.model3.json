@@ -1,0 +1,22 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "12touya_tuxedo_t01.moc3",
+		"Textures": [
+			"12touya_tuxedo_t01.2048/texture_00.png"
+		],
+		"Physics": "12touya_tuxedo_t01.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		}
+	]
+}

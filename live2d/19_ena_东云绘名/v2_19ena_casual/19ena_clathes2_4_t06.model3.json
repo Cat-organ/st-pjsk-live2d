@@ -1,0 +1,22 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "19ena_clathes2_4_t06.moc3",
+		"Textures": [
+			"19ena_clathes2_4_t06.2048/texture_00.png"
+		],
+		"Physics": "19ena_clathes2_4_t06.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		}
+	]
+}

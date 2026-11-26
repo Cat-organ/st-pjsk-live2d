@@ -1,0 +1,22 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "v2_15nene_unit2_t06_nLS.moc3",
+		"Textures": [
+			"v2_15nene_unit2_t06_nLS.2048/texture_00.png"
+		],
+		"Physics": "v2_15nene_unit2_t06_nLS.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

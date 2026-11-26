@@ -1,0 +1,22 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "04shiho_swimsuit.moc3",
+		"Textures": [
+			"04shiho_swimsuit.2048/texture_00.png"
+		],
+		"Physics": "04shiho_swimsuit.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

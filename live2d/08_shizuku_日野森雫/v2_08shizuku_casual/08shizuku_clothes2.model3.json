@@ -1,0 +1,22 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "08shizuku_clothes2.moc3",
+		"Textures": [
+			"08shizuku_clothes2.2048/texture_00.png"
+		],
+		"Physics": "08shizuku_clothes2.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

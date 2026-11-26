@@ -1,0 +1,222 @@
+PJSK 前端资源包 · 文件清单
+========================================================
+生成时间  2026-11-26 11:12
+构建戳    2026-11-26 11:12（页面右下角报错卡片里也能看到）
+
+一、怎么测试
+--------------------------------------------------------
+整个文件夹就是「素材根目录」，起一个 HTTP 服务指向它：
+
+    cd /d K:\st-pjsk-live2d
+    python -m http.server 8933
+
+然后打开  http://127.0.0.1:8933/pjsk-game.html
+
+不要直接双击 html（file:// 不跑 ES module，会一直停在加载）。
+页面里的 assetBase 是 ./，运行时会转成当前地址，换端口 / 换路径都不用改。
+
+已实测（2026-11-22 16:18）：9 句对白 / 8 个角色 / 33 个 motion3，
+0 个 404、0 个 pageerror，专属词全部命中
+（笑梦 Wonderhoy、一歌 尴尬、瑞希 黑脸哭、流歌 捧脸、铃 敬礼、司 抱臂、MEIKO 跳舞）。
+
+二、文件清单
+--------------------------------------------------------
+文件 / 目录                          文件数         大小  说明
+pjsk-game.html                     1    0.41 MB  前端页面（本地测试入口）
+regex-replacement.txt              1    0.41 MB  酒馆正则替换串
+player/bundle.js                   1    1.74 MB  播放器本体
+models.json                        1    0.32 MB  模型 / 服装 / 表情索引
+backgrounds.json                   1    0.01 MB  背景索引
+model_manifest.json                1    0.08 MB  模型文件与动作目录索引
+live2d/                         2044  1529.0 MB  Live2D 模型（26 角色 / 441 套 + 57 个 NPC）
+motions/                       11057    61.3 MB  动作与表情 motion3
+background/                      319    73.3 MB  背景图
+fonts/                             3    1.78 MB  剧中字体（已子集化）
+ui/                               15    0.60 MB  对话框 / 按钮 / 转场贴图
+Profile/                          20    0.12 MB  头像
+worldmap/                         10    3.18 MB  地图
+fx/                                9    0.32 MB  特效贴图
+合计                             13483  1672.5 MB
+
+三、上传时放哪
+--------------------------------------------------------
+把本文件夹里的内容整体当成素材根目录（下面用 <根> 表示）：
+
+  <根>/player/bundle.js         播放器本体
+  <根>/models.json              模型索引
+  <根>/backgrounds.json         背景索引
+  <根>/model_manifest.json      服装 → 模型文件 + 动作目录
+  <根>/live2d/  <根>/motions/   人物模型与动作
+  <根>/background/  <根>/ui/  <根>/fonts/  <根>/Profile/  <根>/worldmap/  <根>/fx/
+
+服务器必须开 CORS（Access-Control-Allow-Origin: *），
+否则背景能显示、但 Live2D 人物会加载失败（moc3 / 贴图是 fetch 取的）。
+传完用 curl -I 看一眼响应头里有没有这个字段。
+
+四、这次改了什么
+--------------------------------------------------------
+重新构建：pjsk-game.html、regex-replacement.txt（构建戳 2026-11-26 11:12）
+没有改动：player/bundle.js（2026-10-25）、三个 json（2026-11-01）、
+          live2d / motions / background / fonts / ui / Profile / worldmap / fx
+
+本次内容（2026-11-26 11:12，手机竖屏自动横屏）：
+  1. 屏宽 < 540 的竖屏手机，页面把自己顺时针转 90° 铺满一屏（手机横过来看）；
+     桌面 / 平板 / 横屏手机都不转。判断看的是设备屏幕，不是 iframe 自己的宽高
+     （酒馆里的 iframe 是 16:9 横条，用它判不出手机竖屏）。
+  2. iframe 高度：body 先给一个 min-height，酒馆助手才会把 iframe 撑到一屏高；
+     宿主是固定高度的 iframe、1 秒还没撑起来，就退让成「按现有高度铺满」。
+  3. 转完点击推进 / 选项按钮 / 菜单都照常（DOM 命中跟着 transform 走）。
+  4. 回归：mobile 24 / branch 58 / dist / play / auto 全绿，0 个 404、0 个 pageerror。
+
+上一轮内容（2026-11-25 21:27，让位不再重置动作）：
+  1. 修：A 说完话、B 登场让位时，A 会突然变回双手交叠的待机动作。
+     原因是「一个人居中 → 两个人分左右」走的是退场 + 从新位置出场，
+     而出场那一下写死了 MotionName = defaultMotion、FacialName = face_normal_01，
+     等于把刚才的动作和表情一起洗掉。
+  2. 现在出场只换位置：MotionName / FacialName 都留空（引擎的 play('') 会跳过），
+     角色带着原来的姿势淡入。--贴贴-- 的回程同理。
+  3. 实测：一歌点头说话（w-normal-nod03）→ 咲希登场 → 一歌从 center(4) 挪到 left(3)，
+     动作仍是 w-normal-nod03。
+  4. 回归：scenario 216 / act / motion / play / scene / dist / pack / branch 58 全绿，
+     资源包 0 个 404。
+
+上一轮内容（2026-11-25 21:01，选项面板的样式与节奏）：
+  1. 选项按钮换成开场白（intro-player）那套：白色胶囊 + 深色字 + 全角引号，
+     两条横排在人物胸口（top 62%），依次浮上来（每多一条晚 80ms）；
+     hover 浅青描边、按下回弹。面板出现时对话框先淡掉，两层文字不叠。
+  2. 出现节奏也照 intro：公共段最后一句**说完停住**，玩家点一下画面才弹选项；
+     AUTO 亮着时给 2.5 秒耐心，到点自己弹（自动播放的人不会去点，不然像卡死）。
+     停住的做法是只把内层 player.auto 关掉，AUTO 灯不变；选完 loadBranch 会
+     按 modes.auto 自动恢复，不用手动开回来。
+  3. 选项归属简化：括号第三段直接写 A / B 就行（最多 A-H），不用写 Option A。
+     `角色名(语气-动作;表情;A)：「台词」`。旧写法 Option A 仍然兼容。
+     单字母只认 A-H，动作/表情/服装词表里没有单字母，不会误伤。
+  4. 删掉右下角 ⚗ 自检按钮（它只是开发时确认酒馆接口用的）。
+  5. 条目：K://pjsk-data//条目//通用条目//导演指令.txt 新增「六、选项（-Option）」，
+     含语法、示例、出现节奏和「只在真有分歧时用」的建议。
+  6. 测试 test/branch-test.js 从 50 项加到 58 项：停住不自动弹、点一下才弹、
+     按钮带全角引号、对话框让开、AUTO 2.5 秒兜底。
+  7. 回归：parser 96 / scenario 216 / dist / play / menu / more 21 / ui /
+     map 57 / skip 26 / story 41 / auto / act / costume / fx / holo / persona /
+     scene / warm / favor 15 / affection 38 / motion / mouth 全绿，
+     资源包 0 个 404。
+
+上一轮内容（2026-11-25 18:37，选项分支）：
+  1. 「更多」面板新增「台词朗读（TTS）」开关与语音设置。
+     只读角色台词：旁白、只有省略号的句子跳过；未收录的路人仍按角色读（默认音色）。
+     支持 5 种服务：浏览器内置语音、Fish Audio、OpenAI 兼容、
+     VOICEVOX（本地）、自定义接口（地址里用 {text} / {voice} / {name} / {speed}）。
+     地址 / 密钥 / 音色 / 模型 / 语速 / 角色音色都能在面板里改，
+     还能试听；配置存在本机 localStorage（键 pjsdk-tts-v1）。
+  2. 台词支持「日语 ||| 中文」：||| 前只交给 TTS，||| 后显示在对话框。
+     全角 ｜｜｜ 也认；没有分隔符时整句照常显示、照常读。
+     解析层：js/parser.js 的 splitVoice()；编译层：TalkData.VoiceText。
+  3. 自动朗读只在「聊天里最后一条消息的最后一个播放器」里生效，
+     历史消息不会一起读；跳过 / 重播 / 前往本句都会先停掉当前音频。
+  4. 密钥**没有写进页面**：pjsk-game.html / regex-replacement.txt 里
+     都只有配置界面，没有 Fish Audio key。正式用请在面板里自己填。
+     Fish Audio 官方 API 不允许浏览器直连（CORS），需要自备代理
+     （README「台词朗读」一节有 Cloudflare Worker 示例），
+     不想折腾就先用浏览器内置语音。
+  5. 代码：新增 player/tts.js（打包时内联进 html）；player/boot.js 的
+     ttsMaybe / ttsIsLatest / 更多面板；player/index.html 的样式。
+
+上一轮内容（2026-11-20 01:33，三处表现）：
+  1. 借图场景的左上角常驻地点牌。
+     `-scene：宫益坂公司 前台处(显示：酒店大厅)-` 这种写法，画面借的是别处的图；
+     以前只有中间一条转场字幕，播完就没了，玩家容易把画面里的「酒店大厅」
+     当成剧情地点。现在借图场景在左上角挂一块地点牌写**真实地点名**，
+     一直挂到换下一个场景（正常场景没有这块牌）。
+     实现：编译器在 scenario.SceneMarks 里记 {At, Name, Borrowed}，
+     player/boot.js 的 mountPlacePlate 按播放进度显示/收起。
+  2. 挥完手会自己放下（**只有挥手**）。
+     pjsk 的 motion3 普遍带一条 20 秒的保持尾帧（w-happy-shakehand01 实演 0~2.6s，
+     之后一直举着手到 22.6s），所以挥手演完约 3.6 秒后，用约 1.3 秒慢慢放回中立站姿。
+     其它动作（点头、抱臂、欢呼…）保持原样——都收回中立会像罚站。
+     3.6 秒是 7783 个 motion3 的统计值（95% 在 3.0s 内演完，99% 在 3.35s）。
+  3. 换位改成「退场 → 出场」，不是滑过去。
+     A 说完 B 登场时要给 B 让位、以及 --贴贴-- 的回程，都改成先淡出、
+     再从正确位置淡入（跟游戏一致）。贴过去那一下仍然保留滑行。
+     编译器：js/scenario.js 的 recastSlot。
+
+上一轮内容（2026-11-18 20:08，三处 UI）：
+  1. 播完之后对话框和最后一句**留着**，中间补一条「对话结束」横幅
+     （跟换地点同款 ScenarioTelop），点一下才真正结束。
+     原来最后一句会把对话框收掉，停在「话没说完」的样子。
+     横幅文字可以用 PJSK_SETTINGS.endTelop 改，写 false 就不显示。
+  2. 记录面板每条右下角加了【前往本句】：点它就 jumpTo 到那句，
+     背景 / 站位 / 环境光按前面的片段重建好，从那里接着演。
+  3. 菜单圆钮下方加了全屏按钮（四角图标）：requestFullscreen 整个播放器，
+     再点一次退出。iframe 需要 allow="fullscreen"，被拦的话会弹一句提示。
+     另外「跳过」的目标改成了最后一个**台词**片段，不会停在结束横幅上。
+
+上一轮内容（2026-11-17 02:23，两处）：
+  1. <game> 只认最后一对（上一版没修干净，这次按实测日志重做）。
+     日志里思维链出现过「本文（<game>内）…」这种**没闭合**的提及，
+     它会和正文块那个 </game> 配成一对，所以「取最后一块」还是会把思维链吞进来。
+     现在改成：先找最后一个 </game>，再取它前面最近的那个 <game>，不用正则配对。
+  2. 长旁白不再顶出画面。对话框正文是固定 26.67px、从 top:572px 往下排，
+     一段两百多字就会被舞台的 overflow 切掉。现在每句开演前按整句量一次高度，
+     挤不下就自动降字号（最低 14px），正常长度仍用原字号。
+
+上一轮内容（2026-11-15）：
+  1. 一歌的表情「大喊」更正为「尴尬」（原 clip 实际是闭眼干笑），
+     真冬「发烧」去掉一个不脸红的变体。
+  2. 清掉 125 个索引外的模型目录 + 7 个目录里多余的重复 model3
+     （519 个文件 / 247.5 MB），
+     live2d 从 2563 个文件 / 1776.5 MB 降到 2044 个文件 / 1529.0 MB。
+     删的是 _black 异色版、_sub 联动变身、v2_*_back 背面、_zoom 等，
+     models.json 和 model_manifest.json 里都没有它们，前端永远选不到，
+     已确认代码里没有任何按后缀约定拼路径的逻辑。
+  3. 删掉 background/_index.html、live2d/expressions.json 两个 0 引用文件。
+
+也就是说，如果线上已经有旧的 bundle.js 和素材，这次只换页面 / 正则即可；
+bundle.js 一起传也没问题（内容跟旧的完全一样）。
+
+五、没放进来的（省空间，前端不读）
+--------------------------------------------------------
+  备份图像/        2.4 GB    备份
+  解包图像/        12.7 GB   解包中间产物
+  card_cutout/     455 MB    卡面裁切，未引用
+  stamp/           98 MB     未引用
+  ui 里的 FOT-Rodin 两个字体  32 MB，运行时用不到
+  motion_index.json 2.2 MB、mob_motions.json、manifest.json  未引用
+  story/、motions_v2/、intro-sekai map/  代码里没有引用
+
+六、校验值（SHA256 前 16 位）
+--------------------------------------------------------
+  pjsk-game.html               9758ebc2c33581b5
+  regex-replacement.txt        2e7fc9488153aff5
+  player/bundle.js             79d648d922f28746
+  models.json                  5e356531970574ed
+  backgrounds.json             1d8e7fba44e5ba30
+  model_manifest.json          aae9b6e6ec1debc3
+
+七、酒馆那边
+--------------------------------------------------------
+两种情况，只看你用的是哪种捕获：
+
+A. 用 <StatusPlaceHolderImpl/> 占位符（你现在这种）
+   正则不用动，只把 regex-replacement.txt 重新粘一遍（页面代码变了）。
+   前端会整条消息读取，再自己取最后一个 <game> 块。
+   注意：这种方案下消息里的 <game> 原文会留在聊天记录里，
+   要藏起来需要另加一条「仅格式显示、替换为空」的规则。
+
+B. 用 <game> 正则直接替换
+   正则换成只吃最后一个 <game> 的版本：
+
+       <game>(?![\s\S]*<game>)([\s\S]*?)</game>
+
+   旧版 <game>([\s\S]*?)</game> 会因为思维链里没闭合的提及而吞掉整段思考。
+
+两种都要注意：regex-replacement.txt 里的 assetBase 还指着
+http://127.0.0.1:8931/pjsk-assets/ ，上传拿到真实域名后必须重新构建：
+
+    python tools/build_player.py --asset-base https://你的域名/路径/
+
+结尾的 / 不能少，然后把新生成的 regex-replacement.txt 粘进去。
+
+八、清理记录
+--------------------------------------------------------
+删除清单存在 game-renderer/dist-player/_已清理清单.txt（125 个整目录 + 7 个重复 model3）。
+原始模型完整保留在 K:\pjsk-data\pjsk-assets\live2d\ ，要恢复直接覆盖回来即可。

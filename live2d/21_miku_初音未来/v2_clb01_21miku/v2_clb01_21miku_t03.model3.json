@@ -1,0 +1,23 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "v2_clb01_21miku_t03.moc3",
+		"Textures": [
+			"v2_clb01_21miku_t03.2048/texture_00.png",
+			"v2_clb01_21miku_t03.2048/texture_01.png"
+		],
+		"Physics": "v2_clb01_21miku_t03.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

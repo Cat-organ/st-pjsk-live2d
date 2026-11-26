@@ -1,0 +1,22 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "v2_07_airi_lesson_t07.moc3",
+		"Textures": [
+			"v2_07_airi_lesson_t07.2048/texture_00.png"
+		],
+		"Physics": "v2_07_airi_lesson_t07.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

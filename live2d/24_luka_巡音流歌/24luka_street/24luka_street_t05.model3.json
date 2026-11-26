@@ -1,0 +1,24 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "24luka_street_t05.moc3",
+		"Textures": [
+			"24luka_street_t05.2048/texture_00.png",
+			"24luka_street_t05.2048/texture_01.png",
+			"24luka_street_t05.2048/texture_02.png"
+		],
+		"Physics": "24luka_street_t05.physics3.json"
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": []
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	]
+}

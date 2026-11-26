@@ -1,0 +1,4 @@
+# Cloudflare Pages：允许酒馆（另一个源）用 $("body").load() 把这一页拉过去
+/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, HEAD, OPTIONS
