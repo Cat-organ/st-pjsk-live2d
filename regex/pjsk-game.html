@@ -2759,14 +2759,16 @@
   /* ============================================================
      唯一要改的地方：assetBase 指向你的素材根目录
      目录里要有：live2d/  background/  motions/  fonts/  ui/
-                 player/bundle.js
                  models.json  backgrounds.json  model_manifest.json
+     playerBundle 默认跟素材同目录；GitHub raw 给 .js 的 MIME 是 text/plain，
+     ES module 会被浏览器拦，所以线上把 bundle.js 放到 Cloudflare Pages，
+     用 --player-bundle 指过去。
                  （剧情面板的横幅 / 头像 / 壁纸都走 GitHub raw，不用传）
      ============================================================ */
   window.PJSK_SETTINGS = {
     assetBase: 'https://raw.githubusercontent.com/Cat-organ/st-pjsk-live2d/main/',
-    playerBundle: 'https://raw.githubusercontent.com/Cat-organ/st-pjsk-live2d/main/player/bundle.js',
-    buildStamp: '2026-11-26 12:32'
+    playerBundle: 'https://st-pjsk-live2d.pages.dev/player/bundle.js',
+    buildStamp: '2026-11-26 12:49'
   };
 </script>
 </head>
