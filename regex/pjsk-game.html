@@ -2768,7 +2768,7 @@
   window.PJSK_SETTINGS = {
     assetBase: 'https://raw.githubusercontent.com/Cat-organ/st-pjsk-live2d/main/',
     playerBundle: 'https://st-pjsk-live2d.pages.dev/player/bundle.js',
-    buildStamp: '2026-11-26 15:52'
+    buildStamp: '2026-11-26 16:49'
   };
 </script>
 </head>
@@ -4302,7 +4302,8 @@
    *   opts.sceneToBg(sceneName, timeName) -> {id, unknown}  场景名+时间 -> 背景 id
    *   opts.charToCostume(name, costumeWord) -> {charId, costume, dir}  角色名(+服装) -> 模型
    *   opts.scenarioId  剧本 id
-   * @returns {{scenario: Object, warnings: string[]}}
+   *   opts.initialClothes  {charId: 服装词} 续演（选项分支）时带进来的服装状态
+   * @returns {{scenario: Object, warnings: string[], clothes: Object}}
    */
   function compile(events, opts) {
     opts = opts || {};
@@ -4336,6 +4337,14 @@
     // --clothes 定义的服装：角色键 -> 服装词。台词里不写服装就按这里的来，
     // 台词里写了就以台词为准并更新这份表（换装会持续到下次改写）
     var clothesMap = {};
+    // 接着上一段往下演（选项分支）时，把当时的服装状态带进来：
+    // 分支里通常不重复写 --clothes，不带的话角色会退回默认校服，
+    // 还会因此加载一套本来不需要的模型。
+    if (opts.initialClothes) {
+      Object.keys(opts.initialClothes).forEach(function (k) {
+        clothesMap[k] = opts.initialClothes[k];
+      });
+    }
     // --贴贴--：置起之后，下一句台词时让台上另一个角色滑到说话人身边，
     // 说完回原位。旁白/未收录角色不消耗
     var pendingSnuggle = false;
@@ -5199,7 +5208,7 @@
       scenario.FirstBackground = opts.fallbackBg;
     }
 
-    return { scenario: scenario, warnings: warnings };
+    return { scenario: scenario, warnings: warnings, clothes: clothesMap };
   }
 
   var api = {
@@ -9715,6 +9724,9 @@
       endTelop: hasBranch ? false : S.endTelop,
     });
     app.scenario = built.scenario;
+    // 这一轮结束时的服装状态（--clothes 定义 + 台词里临时写的），
+    // 选项分支接着演的时候要带过去，见 loadBranch
+    app.clothes = built.clothes || {};
     app.rawText = text;
     app.warnings = parsed.warnings.concat(pending, built.warnings);
     if (app.warnings.length) console.info('[pjsdk] ' + label + ' 提示:', app.warnings);
@@ -9744,6 +9756,9 @@
       scenarioId: 'pjsdk_br_' + Date.now(),
       sceneToBg: sceneToBg,
       charToCostume: charToCostume,
+      // 分支接在上一段后面演：服装状态要接着上一段走，不然没写服装的角色
+      // 会退回默认校服（还得多加载一套模型）
+      initialClothes: app.clothes,
       endTelop: S.endTelop,
       fallbackBg: (app.scenario && app.scenario.FirstBackground) || '',
     });
@@ -9752,6 +9767,7 @@
       console.info('[pjsdk] ' + label + ' 提示:', built.warnings);
     }
     app.scenario = built.scenario;
+    app.clothes = built.clothes || app.clothes;
     app.progressIndex = 0;
     if (!app.player) return false;
     await app.player.load(built.scenario);
